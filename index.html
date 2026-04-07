@@ -22,21 +22,21 @@
                         Shopping Cart
                     </button>
                 </div>
-                <div style="margin-bottom: 20px;">
-                    <label>Sort by:</label>
-                    <select v-model="sortBy">
-                        <option value="Category">Category</option>
-                        <option value="Name">Dish Name</option>
-                        <option value="Tags">Tags</option>
-                    </select>
-
-                    <label>Order:</label>
-                    <select v-model="sortOrder">
-                        <option value="asc">Ascending</option>
-                        <option value="desc">Descending</option>
-                    </select>
-                </div>
                 <div v-if='showMenu'>
+                    <div style="margin-bottom: 20px;">
+                        <label>Sort by:</label>
+                        <select v-model="sortBy">
+                            <option value="Category">Category</option>
+                            <option value="Name">Dish Name</option>
+                            <option value="Tags">Tags</option>
+                        </select>
+
+                        <label>Sort Order:</label>
+                        <select v-model="sortOrder">
+                            <option value="asc">Ascending</option>
+                            <option value="desc">Descending</option>
+                        </select>
+                    </div>
                     <div v-for="dish in sortedDishes">
                         <!-- the code for the dish page -->
                         <div style="display:inline-block;">
@@ -52,17 +52,36 @@
 
                             <!-- The double curly brackets is used instead of 'v-text' -->
                             <p>Price: {{dish.Price}}</p>
-                            <!-- Demo feedback - display the stock left (take away cartCount(dish.id) from dish.AvailableStock) -->
-                            <p>Available Stock: {{dish.AvailableStock - cartCount(dish.id)}}</p>
+                            <!-- Demo feedback - display the stock left (take away cartCount(dish.DishID) from dish.AvailableStock) -->
+                            <p>Available Stock: {{dish.AvailableStock - cartCount(dish.DishID)}}</p>
+
+                            <!-- Display the Nutrition Facts in a table -->                                                
+                            <table>
+                                <!-- Header Row -->
+                                <tr>
+                                <th>Nutrition-fact</th>
+                                <th>Value</th>
+                                <th></th>
+                                </tr>
+
+                                <!-- Data Rows -->
+                                <tr v-for="(row, rowIndex) in dish.NutritionFacts" :key="rowIndex">
+                                    <td v-for="(cell, colIndex) in row" :key="colIndex">
+                                        {{ cell }}
+                                    </td>
+                                </tr>
+                            </table>
+                            <br>
+
                             <!-- This will hide the button when canAddToCart returns false. -->
                             <!-- <button v-on:click='addToCart(dish)' v-if='canAddToCart(dish)'> Add to cart</button> --> 
                         
                             <!-- This will disable the button when canAddToCart returns false (when no stock for that dish is available.). -->
                             <button v-on:click='addToCart(dish)' :disabled='!canAddToCart(dish)'> Add to cart</button> 
                             
-                            <span v-if='dish.AvailableStock === cartCount(dish.id)'>No stock!</span>
-                            <span v-else-if="dish.AvailableStock - cartCount(dish.id) < 5">
-                                Only {{dish.AvailableStock - cartCount(dish.id)}} left in stock!
+                            <span v-if='dish.AvailableStock === cartCount(dish.DishID)'>No stock!</span>
+                            <span v-else-if="dish.AvailableStock - cartCount(dish.DishID) < 5">
+                                Only {{dish.AvailableStock - cartCount(dish.DishID)}} left in stock!
                             </span>
                             <span v-else>Order now!</span>
                             <br>
@@ -74,16 +93,16 @@
                     <h2>Shopping Cart</h2>
                     <p>
                         <strong>Customer Name:</strong>
-                        <!-- This input field is bound to 'name' in the 'order' object -->
-                        <input v-model.trim="order.name" @input="order.name = order.name.replace(/[^A-Za-z ]/g,'')" placeholder="Letters only"/>
+                        <!-- This input field is bound to 'CustomerName' in the 'order' object -->
+                        <input v-model.trim="order.CustomerName" @input="order.CustomerName = order.CustomerName.replace(/[^A-Za-z ]/g,'')" placeholder="Letters only"/>
                     </p>
                     <p>
-                        <strong>Phone:</strong>
-                        <input v-model.trim="order.phone" @input="order.phone = order.phone.replace(/[^0-9]/g,'')" placeholder="Numbers only"/>
+                        <strong>Mobile No:</strong>
+                        <input v-model.trim="order.MobileNo" @input="order.MobileNo = order.MobileNo.replace(/[^0-9]/g,'')" placeholder="Numbers only"/>
                     </p>
                     <h2>Order Information</h2>
-                    <p>Name: {{order.name}}</p>
-                    <p>Phone: {{order.phone}}</p>
+                    <p>Name: {{order.CustomerName}}</p>
+                    <p>Phone: {{order.MobileNo}}</p>
                     <button v-on:click="submitForm" :disabled='!canCheckOut()'>Check Out (Pay Cash on Delivery)</button>
                 </div>
             </main>
@@ -93,8 +112,8 @@
                 el:'#app',//<===Don't forget this comma
                 data() {    // returns default null string values for name and phone no., if not entered by user
                     return {
-                        name: "",
-                        phone: ""
+                        CustomerName: "",
+                        MobileNo: ""
                     }
                 },
                 data: { //the 'data' option
@@ -102,8 +121,8 @@
                     sitename: "Neeti's Cloud Kitchen App",
                     showMenu: true,
                     order: {
-                        name: '',
-                        phone: ''
+                        CustomerName: '',
+                        MobileNo: ''
                     },
                     //We need to read dishes from the server/database
                     dishes: [], // array to read dishes from the server & database
@@ -129,15 +148,19 @@
                 },
                 methods: {
                     addToCart(dish) {
-                        this.cart.push(dish.id);
+                        this.cart.push(dish.DishID);
                     },
                     canAddToCart(dish) {
-                        return dish.AvailableStock > this.cartCount(dish.id);
+                        return dish.AvailableStock > this.cartCount(dish.DishID);
                     },
-                    cartCount(id) {
+                    cartCount(DishID) {
                         let count = 0;
+                        //console.log('Checking cartCount for DishID = ' + DishID + 'this.cart = ' + this.cart);
+
                         for(let i = 0; i < this.cart.length; i++) {
-                            if (this.cart[i] === id) {
+                            //console.log('Checking for this.cart[' + i + '] = ' + this.cart[i]);
+                            if (this.cart[i] === DishID) {
+                                //console.log('Match found!!');
                                 count++;
                             }
                         }
@@ -150,7 +173,7 @@
                         this.showMenu = this.showMenu ? false : true; 
                     },
                     canCheckOut() {
-                        return this.order.name !== "" && this.order.phone !== ""; 
+                        return this.order.CustomerName !== "" && this.order.MobileNo !== ""; 
                     },
                     //  Fetch function to POST order details to mongoDB database in orders collection
                     async postOrderDetails() {
@@ -161,9 +184,9 @@
                                     "Content-Type": "application/json"
                                 },
                                 body: JSON.stringify({
-                                    name: this.order.name,
-                                    phone: this.order.phone,
-                                    dishIds: this.cart
+                                    CustomerName: this.order.CustomerName,
+                                    MobileNo: this.order.MobileNo,
+                                    DishIds: this.cart
                                 })
                             });
                             //The Web Client has to wait for the server response since it is an asynchronous operation.
@@ -174,45 +197,49 @@
                         }
                     },
                     //  Fetch function to PUT available stock to mongoDB database in Dishes collection
-                    async updateAvailableStock() {
+                    async updateAvailableStock(dish) {
                         console.log('dishes.length = ' + this.dishes.length);
-                        for(let i = 0; i < this.dishes.length; i++) {
+                        console.log('this.cart = ' + this.cart);
 
-                            //If the cart contains dish with this id, only then update the available stock in the database
-                            if (this.cartCount(this.dishes[i].id) > 0) {
-                                try {
-                                    console.log(`this.dishes[i]._id = ${this.dishes[i]._id}`);
+                        console.log('Checking in Cart for DishID = ' + dish.DishID);
+                        console.log('Dishes found with this DishID = ' + this.cartCount(dish.DishID));
+                        
+                        //If the cart contains dish with this DishID, only then update the available stock in the database
+                        if (this.cartCount(dish.DishID) > 0) {
+                            try {
+                                console.log(`dish._id = ${dish._id}`);
 
-                                    console.log('Available stock left for this dish = ' + String(this.dishes[i].AvailableStock - this.cartCount(this.dishes[i].id)));
-                                    const response = await fetch(`https://cst3990-neeti-express.onrender.com/collection/Dishes/${this.dishes[i]._id}`, {
-                                        method: "PUT",
-                                        headers: {
-                                            "Content-Type": "application/json"
-                                        },
-                                        body: JSON.stringify({
-                                            //If this dish id is found in the cart, reduce this count from available stock for the dish
-                                            AvailableStock: this.dishes[i].AvailableStock - this.cartCount(this.dishes[i].id) 
-                                        })
-                                    });
-                                    //The Web Client has to wait for the server response since it is an asynchronous operation.
-                                    const result = await response.json();
-                                    console.log("PUT Response:", result);
-                                } catch (error) {
-                                    console.error("PUT Error:", error);
-                                }
+                                console.log('Available stock left for this dish = ' + String(dish.AvailableStock - this.cartCount(dish.DishID)));
+                                const response = await fetch(`https://cst3990-neeti-express.onrender.com/collection/Dishes/${dish._id}`, {
+                                    method: "PUT",
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    body: JSON.stringify({
+                                        //If this dish id is found in the cart, reduce this count from available stock for the dish
+                                        AvailableStock: dish.AvailableStock - this.cartCount(dish.DishID) 
+                                    })
+                                });
+                                //The Web Client has to wait for the server response since it is an asynchronous operation.
+                                const result = await response.json();
+                                console.log("PUT Response:", result);
+                            } catch (error) {
+                                console.error("PUT Error:", error);
                             }
                         }
                     },
                     //This method is called when the Checkout button is clicked. 
                     submitForm() {
-                        console.log("Name = " + this.order.name + "Phone = " + this.order.phone);
+                        console.log("Name = " + this.order.CustomerName + "Phone = " + this.order.MobileNo);
                         console.log("Dishes ordered = " + this.cart);
                         alert('Order submitted!');
                         console.log('Sending order details to the server ...');
                         this.postOrderDetails(); // POST order details to the server
                         console.log('Sending available stock update to the server ...');
-                        this.updateAvailableStock(); // update available stock in each dish (using PUT) to the server.
-                        //Empty Cart
+                        for(let i = 0; i < this.dishes.length; i++) {
+                            this.updateAvailableStock(this.dishes[i]); // update available stock in each dish (using PUT) to the server.
+                        }
+                        console.log('Empty the Cart');
                         this.cart.length = 0;
                     },
                 },

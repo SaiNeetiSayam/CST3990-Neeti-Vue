@@ -6,6 +6,22 @@ header h1{
 body {
     max-width: 970px;
 }
+
+table {
+  border-collapse: collapse;
+  width: 60%;
+  margin: 20px auto;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 12px;
+}
+
+th {
+  background-color: #f5f5f5;
+}
+
 .cart {
   padding: 20px 50px;
 }
@@ -29,3 +45,5 @@ body {
   font-size: 150%;
   margin-top:50px;
 }
+
+
