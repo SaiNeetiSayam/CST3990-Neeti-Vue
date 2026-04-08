@@ -92,13 +92,22 @@
                     <!-- the code for the checkout page -->
                     <h2>Shopping Cart</h2>
                     <p>
+                        <strong>Mobile No:</strong>
+                        <input v-model.trim="order.MobileNo" @input="order.MobileNo = order.MobileNo.replace(/[^0-9]/g,'')" placeholder="Numbers only"/>
+                    </p>
+                    <button v-on:click='getCustomerDetails' :disabled='!canGetCustomerDetails()'>Get Details</button>
+                    <label v-text="accountStatus"></label>
+                    <p>
+                        <strong>Password:</strong>
+                        <!-- This input field is bound to 'Password' in the 'order' object -->
+                        <input type="password" v-model.trim="order.Password"/>
+                    </p>
+                    <button v-on:click='loginOrRegister' :disabled='!canLoginOrRegister()'>Login / Register</button>
+                    <h2>Customer Details</h2>
+                    <p>
                         <strong>Customer Name:</strong>
                         <!-- This input field is bound to 'CustomerName' in the 'order' object -->
                         <input v-model.trim="order.CustomerName" @input="order.CustomerName = order.CustomerName.replace(/[^A-Za-z ]/g,'')" placeholder="Letters only"/>
-                    </p>
-                    <p>
-                        <strong>Mobile No:</strong>
-                        <input v-model.trim="order.MobileNo" @input="order.MobileNo = order.MobileNo.replace(/[^0-9]/g,'')" placeholder="Numbers only"/>
                     </p>
                     <p>
                         <strong>Address:</strong>
@@ -124,27 +133,33 @@
                 el:'#app',//<===Don't forget this comma
                 data() {    // returns default null string values for name and phone no., if not entered by user
                     return {
+                        CustomerID: "",
                         CustomerName: "",
+                        Password: "",
                         MobileNo: "",
                         Address: "",
-                        Landmark: "",
-                    }
+                        Landmark: ""                    }
                 },
                 data: { //the 'data' option
                     //the key 'sitename' matches the value of 'v-text' earlier
                     sitename: "Neeti's Cloud Kitchen App",
                     showMenu: true,
                     order: {
+                        CustomerID: '',
                         CustomerName: '',
+                        Password: '',
                         MobileNo: '',
                         Address: '',
                         Landmark: ''
                     },
                     //We need to read dishes from the server/database
                     dishes: [], // array to read dishes from the server & database
+                    customers: [], // array to read customers from the server & database
                     cart: [], // array to store items in shopping cart
                     sortBy: "Category",
-                    sortOrder: "desc"
+                    sortOrder: "desc",
+                    accountStatus: "",
+                    customerFound: false
                 },
                 //  Fetch function to GET all the dishes from mongoDB database in Dishes collection
                 created: function () {
@@ -187,7 +202,13 @@
                     canCheckOut() {
                         return this.order.CustomerName !== "" && this.order.MobileNo !== "" && this.order.Address !== "" && this.order.Landmark !== ""; 
                     },
-                    //  Fetch function to POST order details to mongoDB database in orders collection
+                    canGetCustomerDetails() {
+                        return this.order.MobileNo !== ""; 
+                    },
+                    canLoginOrRegister() {
+                        return this.order.Password !== ""; 
+                    },
+                   //  Fetch function to POST order details to mongoDB database in Orders collection
                     async postOrderDetails() {
                         const now = new Date();
                         const formattedDate =
@@ -252,17 +273,120 @@
                             }
                         }
                     },
+                    getCustomerDetails()    {
+                        console.log('requesting data from server ...');
+                            
+                        fetch('https://cst3990-neeti-express.onrender.com/collection/Customers').then (
+                            function (response) {
+                                response.json().then (
+                                    function (json) {
+                                        // save the returned JSON object to
+                                        // 'customers' data property
+                                        cloudKitchen.customers = json;
+                                        console.log(json);
+                                    });
+                            }
+                        )
+                        this.accountStatus = "";
+                        //Loop through the Customers returned and check for matching MobileNo 
+                        for(let i = 0; i < this.customers.length; i++) {
+                            //if matching mobile number is found
+                            if (this.customers[i].MobileNo === this.order.MobileNo) {
+                                //Set the customer details
+                                console.log('Account found with Customer name = ' + this.customers[i].CustomerName);
+                                this.accountStatus = "Account found. Enter the password and login."
+                            }
+                        }
+                        if (this.accountStatus === "")  {
+                            this.accountStatus = "Account not found. Set the password and register."
+                        }
+                    },
+                    loginOrRegister()   {
+                        //Loop through the Customers and check for matching MobileNo
+                        this.customerFound = false; 
+                        for(let i = 0; i < this.customers.length; i++) {
+                            //if matching mobile number is found
+                            if (this.customers[i].MobileNo === this.order.MobileNo) {
+                                this.customerFound = true;
+                                //Check if the password entered is correct
+                                console.log('Account found with password = ' + this.customers[i].Password);
+                                if (this.customers[i].Password === this.order.Password) {
+                                    //Populate the Customer's details
+                                    this.order.CustomerID = this.customers[i]._id;
+                                    this.order.CustomerName = this.customers[i].CustomerName;
+                                    this.order.Address = this.customers[i].Address;
+                                    this.order.Landmark = this.customers[i].Landmark;
+                                }   else    {
+                                    alert('Invalid password! Please try again.');
+                                }
+                                break;
+                            }
+                        }
+                    },
+                    //  Fetch function to POST customer details to mongoDB database in Customers collection
+                    async postCustomerDetails() {
+                        try {
+                            const response = await fetch("https://cst3990-neeti-express.onrender.com/collection/Customers", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({
+                                    CustomerName: this.order.CustomerName,
+                                    MobileNo: this.order.MobileNo,
+                                    Address: this.order.Address,
+                                    Landmark: this.order.Landmark,
+                                })
+                            });
+                            //The Web Client has to wait for the server response since it is an asynchronous operation.
+                            const result = await response.json(); 
+                            console.log("Server Response:", result);
+                        } catch (error) {
+                            console.error("POST Error:", error);
+                        }
+                    },
+                    //  Fetch function to PUT available stock to mongoDB database in Dishes collection
+                    async updateCustomerDetails() {
+                        try {
+                            console.log(`CustomerID = ${this.order.CustomerID}`);
+
+                            const response = await fetch(`https://cst3990-neeti-express.onrender.com/collection/Customers/${this.order.CustomerID}`, {
+                                method: "PUT",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({
+                                    //Update Customer details into the Customers collection
+                                    CustomerName: this.order.CustomerName,
+                                    Address: this.order.Address,
+                                    Landmark: this.order.Landmark,
+                                })
+                            });
+                            //The Web Client has to wait for the server response since it is an asynchronous operation.
+                            const result = await response.json();
+                            console.log("PUT Response:", result);
+                        } catch (error) {
+                            console.error("PUT Error:", error);
+                        }
+                    },
                     //This method is called when the Checkout button is clicked. 
                     submitForm() {
                         console.log("Name = " + this.order.CustomerName + "Phone = " + this.order.MobileNo);
                         console.log("Dishes ordered = " + this.cart);
-                        alert('Order submitted!');
                         console.log('Sending order details to the server ...');
                         this.postOrderDetails(); // POST order details to the server
                         console.log('Sending available stock update to the server ...');
                         for(let i = 0; i < this.dishes.length; i++) {
                             this.updateAvailableStock(this.dishes[i]); // update available stock in each dish (using PUT) to the server.
                         }
+                        //If customer not found, make an entry into the Customers collection
+                        if (!this.customerFound)    {
+                            this.postCustomerDetails();
+                        }   else    {
+                            //If customer found, update the Customer details into the Customers collection
+                            this.updateCustomerDetails();
+                        }
+                        alert('Order submitted!');
                         console.log('Empty the Cart');
                         this.cart.length = 0;
                     },
