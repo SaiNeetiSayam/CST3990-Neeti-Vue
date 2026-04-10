@@ -4,6 +4,7 @@
         <title>Neeti's Cloud Kitchen App</title>
         <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+        <link rel="stylesheet" href="assets/css/app.css">
     </head>
     <body>
         <div id="app">
@@ -94,30 +95,32 @@
                     <p>
                         <strong>Mobile No:</strong>
                         <input v-model.trim="order.MobileNo" @input="order.MobileNo = order.MobileNo.replace(/[^0-9]/g,'')" placeholder="Numbers only"/>
+                        <button v-on:click='getCustomerDetails' :disabled='!canGetCustomerDetails()'>Check for Account</button>
                     </p>
-                    <button v-on:click='getCustomerDetails' :disabled='!canGetCustomerDetails()'>Get Details</button>
+                    
                     <label v-text="accountStatus"></label>
                     <p>
                         <strong>Password:</strong>
                         <!-- This input field is bound to 'Password' in the 'order' object -->
-                        <input type="password" v-model.trim="order.Password"/>
+                        <input type="password" :disabled='!enablePassword' v-model.trim="order.Password"/>
+                        <button v-on:click='loginOrRegister' :disabled='!canLoginOrRegister()'>Login / Register</button>
                     </p>
-                    <button v-on:click='loginOrRegister' :disabled='!canLoginOrRegister()'>Login / Register</button>
-                    <h2>Customer Details</h2>
+                    <label v-text="passwordCheckStatus"></label>
+                    <h2>Enter/Edit Customer Details</h2>
                     <p>
                         <strong>Customer Name:</strong>
                         <!-- This input field is bound to 'CustomerName' in the 'order' object -->
-                        <input v-model.trim="order.CustomerName" @input="order.CustomerName = order.CustomerName.replace(/[^A-Za-z ]/g,'')" placeholder="Letters only"/>
+                        <input v-model.trim="order.CustomerName" :disabled='!enableCustomerFields' @input="order.CustomerName = order.CustomerName.replace(/[^A-Za-z ]/g,'')" placeholder="Letters only"/>
                     </p>
                     <p>
-                        <strong>Address:</strong>
+                        <strong>Customer Addr:</strong>
                         <!-- This input field is bound to 'Address' in the 'order' object -->
-                        <input v-model.trim="order.Address"/>
+                        <input v-model.trim="order.Address" :disabled='!enableCustomerFields'/>
                     </p>
                     <p>
-                        <strong>Landmark:</strong>
+                        <strong>Addr Landmark:</strong>
                         <!-- This input field is bound to 'Landmark' in the 'order' object -->
-                        <input v-model.trim="order.Landmark"/>
+                        <input v-model.trim="order.Landmark" :disabled='!enableCustomerFields'/>
                     </p>
                     <h2>Order Information</h2>
                     <p>Name: {{order.CustomerName}}</p>
@@ -159,11 +162,14 @@
                     sortBy: "Category",
                     sortOrder: "desc",
                     accountStatus: "",
-                    customerFound: false
+                    customerFound: false,
+                    passwordCheckStatus: "",
+                    enablePassword: false,
+                    enableCustomerFields: false
                 },
                 //  Fetch function to GET all the dishes from mongoDB database in Dishes collection
                 created: function () {
-                    console.log('requesting data from server ...');
+                    console.log('requesting Dishes data from server ...');
                             
                     fetch('https://cst3990-neeti-express.onrender.com/collection/Dishes').then (
                         function (response) {
@@ -172,6 +178,19 @@
                                     // save the returned JSON object to
                                     // 'dishes' data property
                                     cloudKitchen.dishes = json;
+                                    console.log(json);
+                                });
+                        }
+                    )
+                    console.log('requesting Customers data from server ...');
+                        
+                    fetch('https://cst3990-neeti-express.onrender.com/collection/Customers').then (
+                        function (response) {
+                            response.json().then (
+                                function (json) {
+                                    // save the returned JSON object to
+                                    // 'customers' data property
+                                    cloudKitchen.customers = json;
                                     console.log(json);
                                 });
                         }
@@ -274,20 +293,18 @@
                         }
                     },
                     getCustomerDetails()    {
-                        console.log('requesting data from server ...');
-                            
-                        fetch('https://cst3990-neeti-express.onrender.com/collection/Customers').then (
-                            function (response) {
-                                response.json().then (
-                                    function (json) {
-                                        // save the returned JSON object to
-                                        // 'customers' data property
-                                        cloudKitchen.customers = json;
-                                        console.log(json);
-                                    });
-                            }
-                        )
+                        //Reset all the fields
                         this.accountStatus = "";
+                        this.order.Password = "";
+                        this.order.CustomerName = "";
+                        this.order.Address = "";
+                        this.order.Landmark = "";
+                        this.customerFound = false;
+                        this.passwordCheckStatus = "";
+                        this.enablePassword = false;
+                        this.enableCustomerFields = false;
+                        
+                        console.log('Customers found = ' + this.customers.length);
                         //Loop through the Customers returned and check for matching MobileNo 
                         for(let i = 0; i < this.customers.length; i++) {
                             //if matching mobile number is found
@@ -295,15 +312,18 @@
                                 //Set the customer details
                                 console.log('Account found with Customer name = ' + this.customers[i].CustomerName);
                                 this.accountStatus = "Account found. Enter the password and login."
+                                break;
                             }
                         }
                         if (this.accountStatus === "")  {
                             this.accountStatus = "Account not found. Set the password and register."
                         }
+                        this.enablePassword = true;
                     },
                     loginOrRegister()   {
                         //Loop through the Customers and check for matching MobileNo
-                        this.customerFound = false; 
+                        this.customerFound = false;
+                        this.passwordCheckStatus = ""; 
                         for(let i = 0; i < this.customers.length; i++) {
                             //if matching mobile number is found
                             if (this.customers[i].MobileNo === this.order.MobileNo) {
@@ -311,16 +331,28 @@
                                 //Check if the password entered is correct
                                 console.log('Account found with password = ' + this.customers[i].Password);
                                 if (this.customers[i].Password === this.order.Password) {
+                                    this.passwordCheckStatus = "Password Valid. Edit customer details and check out";
                                     //Populate the Customer's details
                                     this.order.CustomerID = this.customers[i]._id;
                                     this.order.CustomerName = this.customers[i].CustomerName;
                                     this.order.Address = this.customers[i].Address;
                                     this.order.Landmark = this.customers[i].Landmark;
+                                    this.enableCustomerFields = true;
                                 }   else    {
+                                    this.passwordCheckStatus = "Password not matching. Check mobile number and re-enter password."
+                                    //Disable the Customer fields
+                                    this.enableCustomerFields = false;
                                     alert('Invalid password! Please try again.');
                                 }
                                 break;
                             }
+                        }
+                        if (!this.customerFound) {
+                            //Enable the Customer fields (new Customer)
+                            this.enableCustomerFields = true;
+                            this.order.CustomerName = "";
+                            this.order.Address = "";
+                            this.order.Landmark = "";
                         }
                     },
                     //  Fetch function to POST customer details to mongoDB database in Customers collection
@@ -333,7 +365,7 @@
                                 },
                                 body: JSON.stringify({
                                     CustomerName: this.order.CustomerName,
-                                    Paasword: this.order.Password,
+                                    Password: this.order.Password,
                                     MobileNo: this.order.MobileNo,
                                     Address: this.order.Address,
                                     Landmark: this.order.Landmark,
@@ -390,6 +422,33 @@
                         alert('Order submitted!');
                         console.log('Empty the Cart');
                         this.cart.length = 0;
+
+                        console.log('re-fetch Dishes data from server as stock has been updated...');                                
+                        fetch('https://cst3990-neeti-express.onrender.com/collection/Dishes').then (
+                            function (response) {
+                                response.json().then (
+                                    function (json) {
+                                        // save the returned JSON object to
+                                        // 'dishes' data property
+                                        cloudKitchen.dishes = json;
+                                        console.log(json);
+                                    });
+                            }
+                        )
+                        console.log('re-fetch Customers data from server as details have been updated...');                        
+                        fetch('https://cst3990-neeti-express.onrender.com/collection/Customers').then (
+                            function (response) {
+                                response.json().then (
+                                    function (json) {
+                                        // save the returned JSON object to
+                                        // 'customers' data property
+                                        cloudKitchen.customers = json;
+                                        console.log(json);
+                                    });
+                            }
+                        )
+                        //toggle showMenu
+                        this.showMenu = true;
                     },
                 },
                 computed: { //the Computed Property object
