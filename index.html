@@ -23,6 +23,7 @@
                         Shopping Cart
                     </button>
                 </div>
+                <!-- Customer Menu Page -->
                 <div v-if='showMenu'>
                     <div style="margin-bottom: 20px;">
                         <label>Sort by:</label>
@@ -89,6 +90,7 @@
                         </div>
                     </div>
                 </div>
+                <!-- Check Out Page -->
                 <div v-else>
                     <!-- the code for the checkout page -->
                     <h2>Shopping Cart</h2>
@@ -179,8 +181,8 @@
                         MobileNo: '',
                         Address: '',
                         Landmark: '',
-                        billTotal: 0,
-                        itemsSelected: []
+                        billTotal: 0,       //Used for calculating the Bill total
+                        itemsSelected: []   //Used for printing order details
                     },
                     //We need to read dishes from the server/database
                     dishes: [], // array to read dishes from the server & database
@@ -319,6 +321,7 @@
                             }
                         }
                     },
+                    //Checks if the mobile number entered by the user exists in the Customers collection and sets the Account Status message
                     getCustomerDetails()    {
                         //Reset all the fields
                         this.accountStatus = "";
@@ -347,6 +350,9 @@
                         }
                         this.enablePassword = true;
                     },
+                    //Checks if the mobile number entered by the user exists in the Customers collection and validates the password.
+                    //If the password is correct, the customer details are displayed.
+                    //Also populates the itemsSelected array and calculates billTotal.
                     loginOrRegister()   {
                         //Loop through the Customers and check for matching MobileNo
                         this.customerFound = false;
