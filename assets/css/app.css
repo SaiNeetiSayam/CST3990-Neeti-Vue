@@ -6,7 +6,7 @@ header h1{
 body {
     max-width: 970px;
     height: 100vh;
-    background-image: url("https://cst3990-neeti-express.onrender.com/images/pasta.jpg");
+    background-image: url("https://cst3990-neeti-express.onrender.com/images/admin-bg.jpg");
     background-size: cover;
     background-attachment: fixed;
 }
@@ -18,7 +18,7 @@ table {
 }
 
 th, td {
-  border: 1px solid #fbff00;
+  border: 1px solid #0329d1;
 }
 
 th {
