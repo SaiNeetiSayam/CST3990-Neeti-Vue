@@ -11,6 +11,7 @@
             <div style="display:inline-block;">
                 <header>
                     <h1 v-text="sitename"></h1>
+                    <h3>Know your nutrition facts while you order!</h3>
                 </header>
             </div>
             
@@ -55,7 +56,7 @@
                             <!-- The double curly brackets is used instead of 'v-text' -->
                             <p>Price: {{dish.Price}}</p>
                             <!-- Demo feedback - display the stock left (take away cartCount(dish.DishID) from dish.AvailableStock) -->
-                            <p>Available Stock: {{dish.AvailableStock - cartCount(dish.DishID)}}</p>
+                            <!-- <p>Available Stock: {{dish.AvailableStock - cartCount(dish.DishID)}}</p> -->
 
                             <!-- Display the Nutrition Facts in a table -->                                                
                             <table>
@@ -81,9 +82,9 @@
                             <!-- This will disable the button when canAddToCart returns false (when no stock for that dish is available.). -->
                             <button v-on:click='addToCart(dish)' :disabled='!canAddToCart(dish)'> Add to cart</button> 
                             
-                            <span v-if='dish.AvailableStock === cartCount(dish.DishID)'>No stock!</span>
+                            <span v-if='dish.AvailableStock === cartCount(dish.DishID)'>Sold out!</span>
                             <span v-else-if="dish.AvailableStock - cartCount(dish.DishID) < 5">
-                                Only {{dish.AvailableStock - cartCount(dish.DishID)}} left in stock!
+                                Only {{dish.AvailableStock - cartCount(dish.DishID)}} left. Order now!
                             </span>
                             <span v-else>Order now!</span>
                             <br>
@@ -123,6 +124,12 @@
                         <strong>Addr Landmark:</strong>
                         <!-- This input field is bound to 'Landmark' in the 'order' object -->
                         <input v-model.trim="order.Landmark" :disabled='!enableCustomerFields'/>
+                    </p>
+                    <p>
+                        <strong>We would love your feedback:</strong>
+                        <br>
+                        <!-- This input field is bound to 'Feedback' in the 'order' object -->
+                        <textarea v-model.trim="order.Feedback" :disabled='!enableCustomerFields' rows="5" cols="50" placeholder="Enter your text here..."></textarea>
                     </p>
                     <h2>Order Information</h2>
                     <p>Name: {{order.CustomerName}}</p>
@@ -167,6 +174,7 @@
                         MobileNo: "",
                         Address: "",
                         Landmark: "",
+                        Feedback: "",
                         billTotal: 0
                     }
                 },
@@ -181,6 +189,7 @@
                         MobileNo: '',
                         Address: '',
                         Landmark: '',
+                        Feedback: '',
                         billTotal: 0,       //Used for calculating the Bill total
                         itemsSelected: []   //Used for printing order details
                     },
@@ -279,6 +288,7 @@
                                     MobileNo: this.order.MobileNo,
                                     Address: this.order.Address,
                                     Landmark: this.order.Landmark,
+                                    Feedback: this.order.Feedback,
                                     DishIds: this.cart
                                 })
                             });
@@ -329,6 +339,7 @@
                         this.order.CustomerName = "";
                         this.order.Address = "";
                         this.order.Landmark = "";
+                        this.order.Feedback = "";
                         this.customerFound = false;
                         this.passwordCheckStatus = "";
                         this.enablePassword = false;
@@ -341,12 +352,12 @@
                             if (this.customers[i].MobileNo === this.order.MobileNo) {
                                 //Set the customer details
                                 console.log('Account found with Customer name = ' + this.customers[i].CustomerName);
-                                this.accountStatus = "Account found. Enter the password and login."
+                                this.accountStatus = "Welcome back " + this.customers[i].CustomerName + "! Enter the password and login."
                                 break;
                             }
                         }
                         if (this.accountStatus === "")  {
-                            this.accountStatus = "Account not found. Set the password and register."
+                            this.accountStatus = "New Customer! Welcome to Neeti's Cloud Kitchen. Sign up by setting a password."
                         }
                         this.enablePassword = true;
                     },
@@ -386,6 +397,7 @@
                             this.order.CustomerName = "";
                             this.order.Address = "";
                             this.order.Landmark = "";
+                            this.order.Feeback = "";
                         }
                         //Populate itemsSelected array and calculate billTotal
                         this.order.billTotal = 0;
@@ -414,7 +426,7 @@
                                     Password: this.order.Password,
                                     MobileNo: this.order.MobileNo,
                                     Address: this.order.Address,
-                                    Landmark: this.order.Landmark,
+                                    Landmark: this.order.Landmark
                                 })
                             });
                             //The Web Client has to wait for the server response since it is an asynchronous operation.
@@ -438,7 +450,7 @@
                                     //Update Customer details into the Customers collection
                                     CustomerName: this.order.CustomerName,
                                     Address: this.order.Address,
-                                    Landmark: this.order.Landmark,
+                                    Landmark: this.order.Landmark
                                 })
                             });
                             //The Web Client has to wait for the server response since it is an asynchronous operation.
