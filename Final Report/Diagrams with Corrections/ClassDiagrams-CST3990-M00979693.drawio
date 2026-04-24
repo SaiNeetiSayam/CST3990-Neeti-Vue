@@ -1,0 +1,51 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36">
+  <diagram name="Page-1" id="d_0jhhMeK2TcPV3Da7Pz">
+    <mxGraphModel dx="1288" dy="659" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="zGrMzErEN-hHK-_xaFzK-12" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="349" width="760" x="30" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="qYbyMEl41VJK8pK0Y9RK-13" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="INDREDIENTS" vertex="1">
+          <mxGeometry height="20" width="90" x="295" y="1151" as="geometry" />
+        </mxCell>
+        <mxCell id="qYbyMEl41VJK8pK0Y9RK-65" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#99CCFF;" value="CUSTOMERS" vertex="1">
+          <mxGeometry height="121" width="143" x="47" y="329" as="geometry">
+            <mxRectangle height="30" width="120" x="130" y="20" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qYbyMEl41VJK8pK0Y9RK-81" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#99CCFF;" value="DISHES" vertex="1">
+          <mxGeometry height="160" width="130" x="630" y="329" as="geometry" />
+        </mxCell>
+        <mxCell id="zGrMzErEN-hHK-_xaFzK-13" parent="qYbyMEl41VJK8pK0Y9RK-81" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=#66FFFF;align=left;verticalAlign=middle;rounded=0;" value="&lt;div&gt;_id&lt;/div&gt;&lt;div&gt;DishID&lt;/div&gt;&lt;div&gt;Category&lt;/div&gt;&lt;div&gt;Name&lt;/div&gt;&lt;div&gt;Price&lt;/div&gt;&lt;div&gt;AvailableStock&lt;/div&gt;&lt;div&gt;NutritionFacts[Array]&lt;/div&gt;&lt;div&gt;Image (URL)&lt;/div&gt;&lt;div&gt;Tags&lt;/div&gt;" vertex="1">
+          <mxGeometry height="130" width="130" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="qYbyMEl41VJK8pK0Y9RK-85" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#99CCFF;" value="ORDERS" vertex="1">
+          <mxGeometry height="130" width="140" x="320" y="329" as="geometry" />
+        </mxCell>
+        <mxCell id="qYbyMEl41VJK8pK0Y9RK-89" parent="qYbyMEl41VJK8pK0Y9RK-85" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=#66FFFF;align=left;verticalAlign=middle;rounded=0;" value="_id&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;OrderDate&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;CustomerName&lt;/span&gt;&lt;/div&gt;&lt;div&gt;MobileNo&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;Address&lt;/div&gt;&lt;div&gt;Landmark&lt;/div&gt;&lt;div&gt;DishIds[Array]&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="140" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="zGrMzErEN-hHK-_xaFzK-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;fillColor=#007FFF;" value="getCustomerDetails()&lt;div&gt;&lt;div&gt;loginOrRegister()&lt;/div&gt;&lt;div&gt;postCustomerDetails()&lt;/div&gt;&lt;div&gt;updateCustomerDetails()&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="143" x="47" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="zGrMzErEN-hHK-_xaFzK-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;fillColor=#007FFF;" value="" vertex="1">
+          <mxGeometry height="70" width="130" x="630" y="491" as="geometry" />
+        </mxCell>
+        <mxCell id="zGrMzErEN-hHK-_xaFzK-5" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="addDish()&lt;div&gt;displayDishes()&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;updateDish()&lt;/span&gt;&lt;/div&gt;&lt;div&gt;deleteDish()&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="630" y="509" as="geometry" />
+        </mxCell>
+        <mxCell id="zGrMzErEN-hHK-_xaFzK-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;fillColor=#007FFF;" value="&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;submitForm()&lt;/span&gt;&lt;/div&gt;&lt;div&gt;addItemsToOrder()&lt;/div&gt;&lt;div&gt;updateAvailableStock()&lt;/div&gt;&lt;div&gt;postOrderDetails&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="140" x="320" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="zGrMzErEN-hHK-_xaFzK-10" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b&gt;Class Diagrams for Cloud Kitchen&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="241" x="295" y="259" as="geometry" />
+        </mxCell>
+        <mxCell id="qYbyMEl41VJK8pK0Y9RK-80" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=#66FFFF;align=left;verticalAlign=middle;rounded=0;" value="_id&lt;div&gt;CustomerName&lt;/div&gt;&lt;div&gt;MobileNo&lt;/div&gt;&lt;div&gt;Address&lt;/div&gt;&lt;div&gt;Landmark&lt;/div&gt;&lt;div&gt;Password&lt;/div&gt;" vertex="1">
+          <mxGeometry height="90" width="143" x="47" y="360" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
