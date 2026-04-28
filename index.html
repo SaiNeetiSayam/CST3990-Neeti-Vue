@@ -159,7 +159,7 @@
                     <p>
                         <strong>Total: AED </strong>
                         <!-- This input field is bound to 'billTotal' in the 'order' object -->
-                        <input v-model.trim="order.billTotal" />
+                        <input v-model.trim="order.billTotal" :disabled=true />
                     </p>                    
                     <button v-on:click="submitForm" :disabled='!canCheckOut()'>Check Out (Pay Cash on Delivery)</button>
                 </div>
